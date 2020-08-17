@@ -18,6 +18,7 @@ def insertar_temperatura():
 			"measurement": "tempEvents",
 			"tags": {
 				"user": "ja",
+				"sensorID": "28-" + sensor.id
 			},
 			"time": fecha,
 			"fields": {
