@@ -19,6 +19,7 @@ def insertar_temperatura():
 			"tags": {
 				"user": "ja",
 				"sensorID": "28-" + sensor.id
+				"site": "home-sitting room"
 			},
 			"time": fecha,
 			"fields": {
