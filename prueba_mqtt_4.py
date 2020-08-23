@@ -25,12 +25,13 @@ mqtt_server = '192.168.8.88'
 #EXAMPLE IP ADDRESS
 #mqtt_server = '192.168.1.144'
 client_id = ubinascii.hexlify(machine.unique_id())
-topic_sub = b'notification'
+topic_sub = b'temp/salon/sync'
 topic_pub = b'temp/salon'
 
 last_message = 0
 message_interval = 5
 counter = 0
+d = {}
 
 station = network.WLAN(network.STA_IF)
 station.active(True)
@@ -49,9 +50,18 @@ print(station.ifconfig())
 
 def sub_cb(topic, msg):
   print((topic, msg))
-  if topic == b'notification' and msg == b'received':
-    print('ESP received hello message')
-
+  #print ("El mesaje es: {}".format(msg))
+  if topic == b'temp/salon/sync' and msg == b'leer_temp_hum':
+    print('Mensaje para leer la temperatura')
+  
+    try:
+      d = leer_temp_hum()
+      msgc=json.dumps(d)
+      print ("Valor de d: {}".format(d))
+      client.publish(topic_pub, msgc)
+    except OSError as e:
+      restart_and_reconnect()
+    
 def connect_and_subscribe():
   global client_id, mqtt_server, topic_sub
   client = MQTTClient(client_id, mqtt_server)
@@ -65,53 +75,57 @@ def restart_and_reconnect():
   print('Failed to connect to MQTT broker. Reconnecting...')
   time.sleep(10)
   machine.reset()
-
-try:
-  client = connect_and_subscribe()
-except OSError as e:
-  restart_and_reconnect()
-
-while True:
+  
+  
+def leer_temp_hum():
+  ledpin.value(1)
+  print ('Enciendo LED')
+  
+  th = {}
   try:
-    ledpin.value(1)
-    print ('Enciendo LED')
     sensor.measure()
-    time.sleep(1)
-    ledpin.value(0)
-    print('Apago LED')
-    sleep(1)
+    #time.sleep(1)
     temp = sensor.temperature()
     hum = sensor.humidity()
     if (isinstance(temp, float) and isinstance(hum, float)) or (isinstance(temp, int) and isinstance(hum, int)):
-      d = {'temp': 0, 'humidity': 0}
-      d['temp']=temp
-      d['humidity']=hum
+      #d = {'temp': 0, 'humidity': 0}
+      
+      th['temp']=temp
+      th['humidity']=hum
       # uncomment for Fahrenheit
       #temp = temp * (9/5) + 32.0
 
       hum = round(hum, 2)
-      #print(msg)
-      
-      try:
-        #client.check_msg()
-        if (time.time() - last_message) > message_interval:
-          #msg = b'Hello #%d' % counter
-          print (d)
-          msgc=json.dumps(d)
-          client.publish(topic_pub, msgc)
-          last_message = time.time()
-          counter += 1
-      except OSError as e:
-        restart_and_reconnect()
-      
-      
+      #print(th)
       
     else:
       print('Invalid sensor readings.')
   except OSError as e:
     print ('Failed to read sensor.')
+  
+  ledpin.value(0)
+  print('Apago LED')
+
+  return th
+  
+  
+try:
+  client = connect_and_subscribe()
+except OSError as e:
+  restart_and_reconnect()
+  
+d = leer_temp_hum()
+print ("Primer valor de d= {}".format(d))
+  
+ 
+while True:
+  try:
+    new_message = client.check_msg()
     
-  time.sleep(5)  
+    #time.sleep(1)
+  except OSError as e:
+    restart_and_reconnect()
+
 
 
 

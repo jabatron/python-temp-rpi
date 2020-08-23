@@ -25,7 +25,7 @@ mqtt_server = '192.168.8.88'
 #EXAMPLE IP ADDRESS
 #mqtt_server = '192.168.1.144'
 client_id = ubinascii.hexlify(machine.unique_id())
-topic_sub = b'notification'
+topic_sub = b'temp/salon/sync'
 topic_pub = b'temp/salon'
 
 last_message = 0
@@ -46,12 +46,14 @@ while station.isconnected() == False:
 print('Connection successful')
 print(station.ifconfig())
 
-
+p = 0
 def sub_cb(topic, msg):
   print((topic, msg))
-  if topic == b'notification' and msg == b'received':
-    print('ESP received hello message')
-
+  client.publish(topic_pub, b'received')
+  if str(msg) == "b'ja'":
+    print ('ja es el mejor')
+      
+  
 def connect_and_subscribe():
   global client_id, mqtt_server, topic_sub
   client = MQTTClient(client_id, mqtt_server)
@@ -73,45 +75,12 @@ except OSError as e:
 
 while True:
   try:
-    ledpin.value(1)
-    print ('Enciendo LED')
-    sensor.measure()
-    time.sleep(1)
-    ledpin.value(0)
-    print('Apago LED')
-    sleep(1)
-    temp = sensor.temperature()
-    hum = sensor.humidity()
-    if (isinstance(temp, float) and isinstance(hum, float)) or (isinstance(temp, int) and isinstance(hum, int)):
-      d = {'temp': 0, 'humidity': 0}
-      d['temp']=temp
-      d['humidity']=hum
-      # uncomment for Fahrenheit
-      #temp = temp * (9/5) + 32.0
-
-      hum = round(hum, 2)
-      #print(msg)
-      
-      try:
-        #client.check_msg()
-        if (time.time() - last_message) > message_interval:
-          #msg = b'Hello #%d' % counter
-          print (d)
-          msgc=json.dumps(d)
-          client.publish(topic_pub, msgc)
-          last_message = time.time()
-          counter += 1
-      except OSError as e:
-        restart_and_reconnect()
-      
-      
-      
-    else:
-      print('Invalid sensor readings.')
-  except OSError as e:
-    print ('Failed to read sensor.')
+    new_message = client.check_msg()
     
-  time.sleep(5)  
+    #time.sleep(1)
+  except OSError as e:
+    restart_and_reconnect()
+
 
 
 
