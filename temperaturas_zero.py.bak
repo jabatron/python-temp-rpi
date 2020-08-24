@@ -9,7 +9,15 @@ topic = "temp/salon"
 
 def on_message(client, userdata, message):
     msg = message.payload.decode("utf-8")
+    print("Mensaje recibido=", str(message.payload.decode("utf-8")))
     print (msg)
+    print (type(msg))
+    d = json.loads(msg)
+    print ('json message: {}'.format(d))
+    print (type(d))
+    print("Topic=", message.topic)
+    #print("Nivel de calidad [0|1|2]=", message.qos)
+    #print("Flag de retención o nuevo?=", message.retain)
 
 
 def on_publish(client,userdata,result):             #create function for callback
