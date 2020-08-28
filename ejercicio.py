@@ -7,10 +7,30 @@ Opcional:
 Mostrar informacion extra de los dispositivos conectados
 
 josé ángel baselga
-- 24082020 
+- 24082020 versión inicial
+- 28082020 añadir comentarios. arreglar el print
 
 LIBRERIAS ADICIONALES
 pip install getmac
+
+---------------ejemplo de resultado------------------
+
+jose angel - @jabaselga
+Mi Sistema Operativo: Windows
+Mi ip: 192.168.8.122
+Escaneando la red 192.168.8.0/24 ...
+.......................................................
+.......................................................
+......!...................!............................
+..................................!....................
+.!...............................!
+Lista de IPs activas
+host IP: 192.168.8.117,  hostname: Chromecast.lan, con mac: a4:77:33:11:11:11
+host IP: 192.168.8.137,  hostname: DESKTOP-42MKJ9F.lan, con mac: 8a:90:95:22:22:22
+host IP: 192.168.8.200,  hostname: Google-Nest-Mini.lan, con mac: c4:ad:34:33:33:33
+host IP: 192.168.8.222,  hostname: rpi, con mac: b8:27:eb:44:44:44
+host IP: 192.168.8.254,  hostname: ims.vodafone.es, con mac: ac:3b:77:55:55:55
+
 
 """
 
@@ -65,7 +85,7 @@ for host_ip in range(1, 255, 1):
             status = '!'
             result [addr] = 1
     # vamos imprimiendo el avance del escaneo
-    print (status, end='')
+    print (status, end='', flush=True)
 
 print ('')
 
