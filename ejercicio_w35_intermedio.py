@@ -45,8 +45,8 @@ myIP = socket.gethostbyname(socket.gethostname())
 
 # Necesitamos saber cual es la parte de red, asi que "troceamos la IP" para quedarnos con 
 # la parte de red A.B.C.D -> A.B.C.
-myIP_split = myIP.split('.')
-ip_network = myIP_split[0] + '.' + myIP_split[1] + '.' + myIP_split[2] + '.'
+A, B, C, D = myIP.split('.')
+ip_network = A + '.' + B + '.' + C + '.'
 
 # Averiguamos en que Sistema operativo estamos para luego ejecutar los "pings"
 SO = platform.system()
@@ -67,9 +67,15 @@ else :
 
 # En result vamos a guardar las IPs, y si han dado positivo o no en el escaneo
 result = {}
+# Guardo la hora para poner la duracción del escaneo
 hora_comienzo = time.time()
-# Hacemos un bucle desde 1 hasta 254 y para pada item lanzamos el ping y guardamos el resultado
-for host_ip in range(1, 255, 1):
+
+inicio = 1
+fin = 255
+paso = 1
+
+# Hacemos un bucle desde 1 hasta 254 y para cada item lanzamos el ping y guardamos el resultado
+for host_ip in range(inicio, fin, paso):
     addr = ip_network + str(host_ip)
     cmd = cmd_ping + addr
     response = os.popen(cmd)
@@ -82,7 +88,7 @@ for host_ip in range(1, 255, 1):
     result [addr] = 0
     for line in response.readlines():
         if (line.count("TTL")):
-            # Si ha respondido al ping contutamos el estado
+            # Si ha respondido al ping conmutamos el estado
             # y lo guardamos en el array de resultados
             status = '!'
             result [addr] = 1
@@ -91,18 +97,19 @@ for host_ip in range(1, 255, 1):
 
 print ('')
 
+# Guardo la hora fin de escaneo 
 hora_fin = time.time()
 
 # Impresión de los resultados
 print ('Lista de IPs activas')
-print ('Duración del escaneo: {} seg'.format(hora.fin - hora_comienzo))
+print ('Duración del escaneo: {} seg'.format(round (hora_fin - hora_comienzo)))
 # Recorro el array de resultados imprimiendolos y de paso
 # comprobando si tiene "hostname" e imprimiendo la MAC
-for host_ip in range(1, 255, 1):
+for host_ip in range(inicio, fin, paso):
     addr = ip_network + str(host_ip)
     if result[addr] == 1:
         try: 
             name = socket.gethostbyaddr(addr)
-        except:
-            name = 'No se ha encontrado'
+        except Exception:
+            name =['NoName']
         print ("host IP: {},  hostname: {}, con mac: {}".format(addr, name [0], get_mac_address(ip=addr)))   
