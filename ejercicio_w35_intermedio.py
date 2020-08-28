@@ -37,6 +37,7 @@ host IP: 192.168.8.254,  hostname: ims.vodafone.es, con mac: ac:3b:77:55:55:55
 import socket
 import os
 import platform
+import time
 from getmac import get_mac_address
 
 # Necesitamos saber cual es nuestra ip
@@ -66,6 +67,7 @@ else :
 
 # En result vamos a guardar las IPs, y si han dado positivo o no en el escaneo
 result = {}
+hora_comienzo = time.time()
 # Hacemos un bucle desde 1 hasta 254 y para pada item lanzamos el ping y guardamos el resultado
 for host_ip in range(1, 255, 1):
     addr = ip_network + str(host_ip)
@@ -89,9 +91,12 @@ for host_ip in range(1, 255, 1):
 
 print ('')
 
+hora_fin = time.time()
+
 # Impresión de los resultados
 print ('Lista de IPs activas')
-# Recorreo el array de resultados imprimiendolos y de paso
+print ('Duración del escaneo: {} seg'.format(hora.fin - hora_comienzo))
+# Recorro el array de resultados imprimiendolos y de paso
 # comprobando si tiene "hostname" e imprimiendo la MAC
 for host_ip in range(1, 255, 1):
     addr = ip_network + str(host_ip)
@@ -99,5 +104,5 @@ for host_ip in range(1, 255, 1):
         try: 
             name = socket.gethostbyaddr(addr)
         except:
-            pass
+            name = 'No se ha encontrado'
         print ("host IP: {},  hostname: {}, con mac: {}".format(addr, name [0], get_mac_address(ip=addr)))   
