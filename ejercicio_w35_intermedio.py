@@ -149,7 +149,7 @@ try:
             status = '.'
             result [addr] = 0
             for line in response.readlines():
-                if (line.count("TTL")):
+                if (line.count("TTL")) or (line.count("ttl")):
                     # Si ha respondido al ping conmutamos el estado
                     # y lo guardamos en el array de resultados
                     status = '!'
