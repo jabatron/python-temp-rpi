@@ -9,6 +9,7 @@ Mostrar informacion extra de los dispositivos conectados
 josé ángel baselga
 - 24082020 versión inicial
 - 28082020 añadir comentarios. arreglar el print
+- 29082020 mejoras ip/interfaces
 
 LIBRERIAS ADICIONALES
 pip install getmac
