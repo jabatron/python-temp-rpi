@@ -79,7 +79,10 @@ try:
         # accedemos a cada elemento "i", según el sigtema operativo y sacamos la IP
         # y acontinuación convertimos esa caddena en un objeto de la clase ipaddress
         IP_str = info_red[i][ip_so][ip_ip]
-        IP_class = ipaddress.ip_address(IP_str)
+        try:
+            IP_class = ipaddress.ip_address(IP_str)
+        except:
+            continue
 
         # una vez que tenemos un objeto de la clase IP, nos quedamos con las IPv4, que no sean PIPA ni loopback
         if (IP_class.version == 4) and (not IP_class.is_link_local) and (not IP_class.is_loopback) :
