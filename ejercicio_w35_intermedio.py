@@ -85,21 +85,21 @@ info_red = psutil.net_if_addrs()
 
 # ips -> va a contener el listado de todas las IPs validas, para luego escanear las redes
 ips = []
-for i in a:
+for i in info_red:
     # Vamos a componer toda la información de cada red en "net[]"
     net = []
     
     # accedemos a cada elemento "i", según el sigtema operativo y sacamos la IP
     # y acontinuación convertimos esa caddena en un objeto de la clase ipaddress
-    IP_str = a[i][ip_so][ip_ip]
+    IP_str = info_red[i][ip_so][ip_ip]
     IP_class = ipaddress.ip_address(IP_str)
 
     # una vez que tenemos un objeto de la clase IP, nos quedamos con las IPv4, que no sean PIPA ni loopback
     if (IP_class.version == 4) and (not IP_class.is_link_local) and (not IP_class.is_loopback) :
         # vamos a preparar una lista net [ip, mascara, bitmask, cdir] para cada una de las ips validas
-        net.append(a[i][ip_so][ip_ip])                              # añadimos la ip
-        net.append(a[i][ip_so][ip_mk])                              # añadimos la mascara    
-        ip_prefix_str = '0.0.0.0/'+ a[i][ip_so][ip_mk]              
+        net.append(info_red[i][ip_so][ip_ip])                              # añadimos la ip
+        net.append(info_red[i][ip_so][ip_mk])                              # añadimos la mascara    
+        ip_prefix_str = '0.0.0.0/'+ info_red[i][ip_so][ip_mk]              
         ip_prefix = ipaddress.IPv4Network(ip_prefix_str).prefixlen  # buscar longitud de la mascara
         net.append(ip_prefix)                                       # añadimos logitud de la mascara
         
@@ -126,13 +126,9 @@ result = {}
 # Guardo la hora para poner la duracción del escaneo
 hora_comienzo = time.time()
 
-inicio = 1
-fin = 255
-paso = 1
-
 # Hacemos un bucle desde 1 hasta 254 y para cada item lanzamos el ping y guardamos el resultado
-for host_ip in range(inicio, fin, paso):
-    addr = ip_network + str(host_ip)
+for host_ip in hosts:
+    addr = str(host_ip)
     cmd = cmd_ping + addr
     response = os.popen(cmd)
    
@@ -160,7 +156,9 @@ hora_fin = time.time()
 print ('Lista de IPs activas')
 print ('Duración del escaneo: {} seg'.format(round (hora_fin - hora_comienzo)))
 # Recorro el array de resultados imprimiendolos y de paso
-# comprobando si tiene "hostname" e imprimiendo la MAC
+# comprobando si tiene "hostname" e imprimiendo la MAC"
+
+"""
 for host_ip in range(inicio, fin, paso):
     addr = ip_network + str(host_ip)
     if result[addr] == 1:
@@ -168,4 +166,6 @@ for host_ip in range(inicio, fin, paso):
             name = socket.gethostbyaddr(addr)
         except Exception:
             name =['NoName']
-        print ("host IP: {},  hostname: {}, con mac: {}".format(addr, name [0], get_mac_address(ip=addr)))   
+        print ("host IP: {},  hostname: {}, con mac: {}".format(addr, name [0], get_mac_address(ip=addr)))   "
+
+"""

@@ -33,6 +33,7 @@ for i in a:
 
         ips.append(net)
 
+
 print (ips [0][3])
 hosts = list (ipaddress.ip_network(ips[0][3]).hosts())
 print (hosts)
