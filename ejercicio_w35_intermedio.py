@@ -11,9 +11,6 @@ josé ángel baselga
 - 28082020 añadir comentarios. arreglar el print
 - 29082020 mejoras ip/interfaces
 
-LIBRERIAS ADICIONALES
-pip install getmac
-
 ---------------ejemplo de resultado------------------
 
 jose angel - @jabaselga
@@ -33,12 +30,20 @@ host IP: 192.168.8.222,  hostname: rpi, con mac: b8:27:eb:44:44:44
 host IP: 192.168.8.254,  hostname: ims.vodafone.es, con mac: ac:3b:77:55:55:55
 
 
+LIBRERIAS ADICIONALES
+pip install getmac
+pip install psutil
+
 """
+
+
 
 import socket
 import os
 import platform
 import time
+import psutil
+import ipaddress
 from getmac import get_mac_address
 
 # Necesitamos saber cual es nuestra ip
@@ -59,12 +64,62 @@ print ('Escaneando la red {}0/24 ...'.format(ip_network))
 
 # Dependiendo del SO el ping es de una manera u otra
 # lanzamos 1 unico ping para que sea más rápido
+
 if (SO == "Windows"):
-   cmd_ping = "ping -n 1 "
+    ip_so = 1
+    cmd_ping = "ping -n 1 "
 elif (SO == "Linux"):
-   cmd_ping = "ping -c 1 "
+    ip_so = 0
+    cmd_ping = "ping -c 1 "
 else :
-   cmd_ping = "ping -c 1 "
+    ip_so = 0
+    cmd_ping = "ping -c 1 "
+ip_ip = 1
+ip_mk = 2
+# Variables ip_XX -> nos van a permitir acceder a los datos de tarjeta de red, ip, y mask
+
+
+# Sacamos la información de la red, tarjetas, ips, mascaras, etc
+info_red = psutil.net_if_addrs()
+
+
+# ips -> va a contener el listado de todas las IPs validas, para luego escanear las redes
+ips = []
+for i in a:
+    # Vamos a componer toda la información de cada red en "net[]"
+    net = []
+    
+    # accedemos a cada elemento "i", según el sigtema operativo y sacamos la IP
+    # y acontinuación convertimos esa caddena en un objeto de la clase ipaddress
+    IP_str = a[i][ip_so][ip_ip]
+    IP_class = ipaddress.ip_address(IP_str)
+
+    # una vez que tenemos un objeto de la clase IP, nos quedamos con las IPv4, que no sean PIPA ni loopback
+    if (IP_class.version == 4) and (not IP_class.is_link_local) and (not IP_class.is_loopback) :
+        # vamos a preparar una lista net [ip, mascara, bitmask, cdir] para cada una de las ips validas
+        net.append(a[i][ip_so][ip_ip])                              # añadimos la ip
+        net.append(a[i][ip_so][ip_mk])                              # añadimos la mascara    
+        ip_prefix_str = '0.0.0.0/'+ a[i][ip_so][ip_mk]              
+        ip_prefix = ipaddress.IPv4Network(ip_prefix_str).prefixlen  # buscar longitud de la mascara
+        net.append(ip_prefix)                                       # añadimos logitud de la mascara
+        
+        IP2= net[0] + '/' + str(net[1])
+        cdir = ipaddress.ip_network (IP2, strict=False)
+        net.append(cdir)                                            # añadimos CDIR
+
+        ips.append(net)
+
+
+# print (ips [0][3])
+# genero la lista de todos los host que pertenecen a una red
+hosts = list (ipaddress.ip_network(ips[0][3]).hosts())
+# print (hosts)
+
+print (ips)
+
+
+
+
 
 # En result vamos a guardar las IPs, y si han dado positivo o no en el escaneo
 result = {}
