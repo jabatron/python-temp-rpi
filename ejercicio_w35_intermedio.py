@@ -36,8 +36,6 @@ pip install psutil
 
 """
 
-
-
 import socket
 import os
 import platform
@@ -46,25 +44,12 @@ import psutil
 import ipaddress
 from getmac import get_mac_address
 
-# Necesitamos saber cual es nuestra ip
-myIP = socket.gethostbyname(socket.gethostname())
-
-# Necesitamos saber cual es la parte de red, asi que "troceamos la IP" para quedarnos con 
-# la parte de red A.B.C.D -> A.B.C.
-A, B, C, D = myIP.split('.')
-ip_network = A + '.' + B + '.' + C + '.'
-
 # Averiguamos en que Sistema operativo estamos para luego ejecutar los "pings"
+# y otras particularidades debidas al SO
 SO = platform.system()
-
-print ("jose angel - @jabaselga")
-print ("Mi Sistema Operativo: {}".format (SO))
-print ("Mi ip: {}".format(myIP))
-print ('Escaneando la red {}0/24 ...'.format(ip_network))
 
 # Dependiendo del SO el ping es de una manera u otra
 # lanzamos 1 unico ping para que sea más rápido
-
 if (SO == "Windows"):
     ip_so = 1
     cmd_ping = "ping -n 1 "
@@ -78,10 +63,9 @@ ip_ip = 1
 ip_mk = 2
 # Variables ip_XX -> nos van a permitir acceder a los datos de tarjeta de red, ip, y mask
 
-
 # Sacamos la información de la red, tarjetas, ips, mascaras, etc
+# info_red -> contiene TODA la información en bruto de la tarjetas y red
 info_red = psutil.net_if_addrs()
-
 
 # ips -> va a contener el listado de todas las IPs validas, para luego escanear las redes
 ips = []
@@ -106,66 +90,83 @@ for i in info_red:
         IP2= net[0] + '/' + str(net[1])
         cdir = ipaddress.ip_network (IP2, strict=False)
         net.append(cdir)                                            # añadimos CDIR
-
+    # Ejemplo de un valor de 'net'
+    # ['172.25.32.1', '255.255.240.0', 20, IPv4Network('172.25.32.0/20')]
+    #     host             mask       cdir         network
+        
         ips.append(net)
+    # Ejemplo de un valor de ips
+    # [['172.25.32.1', '255.255.240.0', 20, IPv4Network('172.25.32.0/20')], 
+    #  ['172.22.224.1', '255.255.240.0', 20, IPv4Network('172.22.224.0/20')], 
+    #  ['172.20.176.1', '255.255.240.0', 20, IPv4Network('172.20.176.0/20')], 
+    #  ['192.168.1.120', '255.255.255.0', 24, IPv4Network('192.168.1.0/24')], 
+    #  ['172.22.16.1', '255.255.240.0', 20, IPv4Network('172.22.16.0/20')]]
+
+print ("jose angel - @jabaselga")
+print ("Mi Sistema Operativo: {}".format (SO))
+print ("Detectadas las siguientes redes:")
+for red in ips:
+    print (str(red[3]))
 
 
-# print (ips [0][3])
-# genero la lista de todos los host que pertenecen a una red
-hosts = list (ipaddress.ip_network(ips[0][3]).hosts())
-# print (hosts)
+for red in ips:
+    print ('¿Quieres escanear la red {}?'.format (str(red[3])))
+    if (int(red[2])<24):
+        print ('(ojo máscara inferior a 24 - tiempo excesivo)')
+    valor = input ('¿esta seguro? S/N: ')
+    # Nos queremos asegurar si queremos escansear redes "grandess"
+    # para valores mayores de 24 el tiempo empieza a ser eslevado
+    while (valor != 'n') and (valor != 'N') and (valor != 's') and (valor != 'S'): 
+        valor = input ('¿esta seguro? S/N: ')
 
-print (ips)
+    if valor == 'n' or valor == 'N':
+        continue
 
+    # Generamos una lista de todas las ips de esa red
+    hosts = list (ipaddress.ip_network(red[3]).hosts())
+    print ("Comenzando el escaneo.")
+    # En result vamos a guardar las IPs, y si han dado positivo o no en el escaneo
+    result = {}
+    # Guardo la hora para poner la duracción del escaneo
+    hora_comienzo = time.time()
 
+    # Hacemos un bucle para todos loss host de la lista, lanzamos el ping y guardamos el resultado
+    for host_ip in hosts:
+        addr = str(host_ip)
+        cmd = cmd_ping + addr
+        response = os.popen(cmd)
+    
+        # para ir mostrando el avance del programa
+        # . -> la IP no responde a ping
+        # ! -> la IP responde a ping
+        # por defecto no responde
+        status = '.'
+        result [addr] = 0
+        for line in response.readlines():
+            if (line.count("TTL")):
+                # Si ha respondido al ping conmutamos el estado
+                # y lo guardamos en el array de resultados
+                status = '!'
+                result [addr] = 1
+        # vamos imprimiendo el avance del escaneo
+        print (status, end='', flush=True)
+    print ('')
 
+    # Guardo la hora fin de escaneo 
+    hora_fin = time.time()
 
+    # Impresión de los resultados
+    print ('Duración del escaneo: {} seg'.format(round (hora_fin - hora_comienzo)))
+    print ('Lista de IPs activas')
+    # Recorro el array de resultados imprimiendolos y de paso
+    # comprobando si tiene "hostname" e imprimiendo la MAC"
+    for host_ip in result:
+        if result[host_ip] == 1:
+            try: 
+                name = socket.gethostbyaddr(host_ip)
+            except Exception:
+                name =['NoName']
+            print ("host IP: {},  hostname: {}, con mac: {}".format(host_ip, name [0], get_mac_address(ip=host_ip)))   
 
-# En result vamos a guardar las IPs, y si han dado positivo o no en el escaneo
-result = {}
-# Guardo la hora para poner la duracción del escaneo
-hora_comienzo = time.time()
-
-# Hacemos un bucle desde 1 hasta 254 y para cada item lanzamos el ping y guardamos el resultado
-for host_ip in hosts:
-    addr = str(host_ip)
-    cmd = cmd_ping + addr
-    response = os.popen(cmd)
-   
-    # para ir mostrando el avance del programa
-    # . -> la IP no responde a ping
-    # ! -> la IP responde a ping
-    # por defecto no responde
-    status = '.'
-    result [addr] = 0
-    for line in response.readlines():
-        if (line.count("TTL")):
-            # Si ha respondido al ping conmutamos el estado
-            # y lo guardamos en el array de resultados
-            status = '!'
-            result [addr] = 1
-    # vamos imprimiendo el avance del escaneo
-    print (status, end='', flush=True)
-
-print ('')
-
-# Guardo la hora fin de escaneo 
-hora_fin = time.time()
-
-# Impresión de los resultados
-print ('Lista de IPs activas')
-print ('Duración del escaneo: {} seg'.format(round (hora_fin - hora_comienzo)))
-# Recorro el array de resultados imprimiendolos y de paso
-# comprobando si tiene "hostname" e imprimiendo la MAC"
-
-"""
-for host_ip in range(inicio, fin, paso):
-    addr = ip_network + str(host_ip)
-    if result[addr] == 1:
-        try: 
-            name = socket.gethostbyaddr(addr)
-        except Exception:
-            name =['NoName']
-        print ("host IP: {},  hostname: {}, con mac: {}".format(addr, name [0], get_mac_address(ip=addr)))   "
-
-"""
+print ('Fin del escaneado')
+print ("jose angel - @jabaselga")
