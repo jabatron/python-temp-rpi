@@ -29,12 +29,15 @@ NOCHE -> de 21:00 a 5:00
 
 jose angel - @jabaselga
 v0.1 020920 estructura del programa
+v0.2 020820 el programa cumple con las especificaciones
 
 
 """
 from datetime import time, datetime
+import random
 
 # frases -> [[mañana], [tarde], [noche]]
+saludo = [ "Buenos días", "Buenas tardes", "Buenas noches"]
 frases = [  ["Que pases un buen día", "Que te sea leve", "Divierte"],                                           # frases mañana
             ["Que duermas bien la siesta", "Sal a pasear", "No estes mucho rato en el bar"],                    # frases tarde
             ["Pronto a dormir", "No te quedes mucho rato viendo la TV", "Que sueñes con los angelitos"]         # frases noche
@@ -54,8 +57,17 @@ elif (hora >= tarde) and (hora < noche):
 else:
     estado = 2
 
-print (type(hora))
-print (hora)
+nok = True
+nombre = ""
+while nok:
+    nombre = input ("¿Cual es tu nombre? ")
+    valor = input ('¿es correcto? S/N: ')
+    while (valor != 'n') and (valor != 'N') and (valor != 's') and (valor != 'S'): 
+        valor = input ('¿esta seguro? S/N: ')
+    if valor == "S"  or valor == 's':
+        nok = False
+    
 
-print (type(noche))
-print (noche)
+print ("{} {}".format (saludo [estado], nombre))
+print (frases[estado] [random.randint(0,len(frases[estado])-1)])
+
