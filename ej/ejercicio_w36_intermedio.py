@@ -30,7 +30,8 @@ NOCHE -> de 21:00 a 5:00
 jose angel - @jabaselga
 v0.1 020920 estructura del programa
 v0.2 020920 el programa cumple con las especificaciones
-v0.3 030920 saber cuando sale el sol y cuando se pone
+v0.3 030920 saber cuando sale el sol y cuando se pone, no hay control de errores
+PENDIENTE CONTROL DE ERRORES
 
 
 LIBRERIAS 
@@ -42,7 +43,7 @@ import random
 import requests         # es necesario instalarla
 
 saludo = [ "Buenos días", "Buenas tardes", "Buenas noches"]
-#Puedo poner tantas frases como quiera, luego controlare la logitud para elegir una al azar
+#Puedo poner tantas frases como quiera, luego controlaré la logitud para elegir una al azar
 # frases -> [   [mañana], 
 #               [tarde], 
 #               [noche]
@@ -69,12 +70,30 @@ manana = time (hour=int(h_m), minute=int(m_m), second=0)        # a partir de es
 tarde = time (hour=14, minute=0, second=0)                      # a partir de esta hora es tarde
 noche = time (hour=int(h_n), minute=int(m_n), second=0)         # a partir de esta hora es noche
 
-print ('Hora de mañana: {}'.format (manana))
-print ('Hora de noche: {}'.format (noche))
+print ('Hora de salida de sol: {}'.format (manana))
+print ('Hora de puesta de sol: {}'.format (noche))
 
 
 # Detectar la hora actual del dispositivo
 hora = datetime.now().time()
+# Pasar hora del sistema a segundos
+seg_s = hora.second + hora.minute*60 + hora.hour*60*60
+
+# hora en formato string
+hora_inet_s = data["current_time"]
+h_i, m_i, s_i_d = hora_inet_s.split(':')
+s_i, s_id = s_i_d.split('.')
+# Pasar hora de internet a segundos
+seg_i = 60*60*int(h_i) + 60*int(m_i) + int(s_i)
+
+# hora en formato time para luego poder realizar las comparaciones
+hora_inet = time(hour=int(h_i), minute=int(m_i), second=int(s_i), microsecond=int(s_id)* 1000)
+
+print ('Hora sistema:  {}'. format (hora))
+print ('Hora internet: {}'. format (hora_inet))
+# Control de errores hora del sistema no coincide con la de internet
+if (abs(seg_s - seg_i) > 1000):
+    print ('Es posible que tengas mal la hora del sistema')
 
 if (hora >= manana) and (hora < tarde):
     estado = 0                                  #   Es por la mañana
