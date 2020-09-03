@@ -20,13 +20,6 @@ saludo decirle una frase escogida aleatoriamente, por ejemplo:
 nota:investigar cuando es de dia, tarde o noche para realizar este programa
 code:#proyIn002
 
-
-RESTRICCIONES:
-
-MAÑANA -> de 6:00 a 14:59
-TARDE -> de 15:00 a 20:59
-NOCHE -> de 21:00 a 5:00
-
 jose angel - @jabaselga
 v0.1 020920 estructura del programa
 v0.2 020920 el programa cumple con las especificaciones
@@ -56,44 +49,53 @@ frases = [  ["Que pases un buen día", "Que te sea leve", "Divierte"],          
 # Se usa del servicio ipgeolocation para saber cuando sale el sol (sunrise) y cuando se pone (sunset)
 API_KEY = 'f2833266890f4c94a1be8f5af7157cb6'
 # por la IP de la WAN voy a saber más o menos donde estoy
-ip_r = requests.get('https://ifconfig.me/ip/')
-IP = ip_r.text  
-LANG = 'sp'
-URL = 'https://api.ipgeolocation.io/astronomy?apiKey=' + API_KEY + '&ip=' + IP + '&lang=' + LANG
-r = requests.get(URL)
-data = r.json()
 
-
-h_m, m_m = data["sunrise"].split(":")                           # saco la hora y minutos de la salida de sol
-h_n, m_n = data["sunset"].split(":")                            # saco la hora y minutos de la puesta de sol
-manana = time (hour=int(h_m), minute=int(m_m), second=0)        # a partir de esta hora es mañana
-tarde = time (hour=14, minute=0, second=0)                      # a partir de esta hora es tarde
-noche = time (hour=int(h_n), minute=int(m_n), second=0)         # a partir de esta hora es noche
-
-print ('Hora de salida de sol: {}'.format (manana))
-print ('Hora de puesta de sol: {}'.format (noche))
-
+# Definimos la hora de saludo por si no hay conexión a internet
+manana = time (hour=7, minute=0, second=0)        # a partir de esta hora es mañana
+tarde = time (hour=14, minute=0, second=0)        # a partir de esta hora es tarde
+noche = time (hour=21, minute=0, second=0)        # a partir de esta hora es noche
 
 # Detectar la hora actual del dispositivo
 hora = datetime.now().time()
 # Pasar hora del sistema a segundos
 seg_s = hora.second + hora.minute*60 + hora.hour*60*60
 
-# hora en formato string
-hora_inet_s = data["current_time"]
-h_i, m_i, s_i_d = hora_inet_s.split(':')
-s_i, s_id = s_i_d.split('.')
-# Pasar hora de internet a segundos
-seg_i = 60*60*int(h_i) + 60*int(m_i) + int(s_i)
+# lanzamos todo en un try por si no hay conexión a internet y no nos puede geolocalizar
+try:
+    ip_r = requests.get('https://ifconfig.me/ip/')
+    IP = ip_r.text  
+    LANG = 'sp'
+    URL = 'https://api.ipgeolocation.io/astronomy?apiKey=' + API_KEY + '&ip=' + IP + '&lang=' + LANG
+    r = requests.get(URL)
+    data = r.json()
 
-# hora en formato time para luego poder realizar las comparaciones
-hora_inet = time(hour=int(h_i), minute=int(m_i), second=int(s_i), microsecond=int(s_id)* 1000)
+    h_m, m_m = data["sunrise"].split(":")                           # saco la hora y minutos de la salida de sol
+    h_n, m_n = data["sunset"].split(":")                            # saco la hora y minutos de la puesta de sol
+    manana = time (hour=int(h_m), minute=int(m_m), second=0)        # a partir de esta hora es mañana
+    noche = time (hour=int(h_n), minute=int(m_n), second=0)         # a partir de esta hora es noche
 
-print ('Hora sistema:  {}'. format (hora))
-print ('Hora internet: {}'. format (hora_inet))
-# Control de errores hora del sistema no coincide con la de internet
-if (abs(seg_s - seg_i) > 1000):
-    print ('Es posible que tengas mal la hora del sistema')
+    print ('Hora de salida de sol: {}'.format (manana))
+    print ('Hora de puesta de sol: {}'.format (noche))
+
+    # hora en formato string
+    hora_inet_s = data["current_time"]
+    h_i, m_i, s_i_d = hora_inet_s.split(':')
+    s_i, s_id = s_i_d.split('.')
+    # Pasar hora de internet a segundos
+    seg_i = 60*60*int(h_i) + 60*int(m_i) + int(s_i)
+
+    # hora en formato time para luego poder realizar las comparaciones
+    hora_inet = time(hour=int(h_i), minute=int(m_i), second=int(s_i), microsecond=int(s_id)* 1000)
+
+    print ('Hora sistema:  {}'. format (hora))
+    print ('Hora internet: {}'. format (hora_inet))
+    # Control de errores hora del sistema no coincide con la de internet
+    if (abs(seg_s - seg_i) > 1000):
+        print ('Es posible que tengas mal la hora del sistema')
+
+    print ('Usted tiene pinta de estar en {}'. format (data ["location"] ["country_name"]))
+except:
+    pass
 
 if (hora >= manana) and (hora < tarde):
     estado = 0                                  #   Es por la mañana
