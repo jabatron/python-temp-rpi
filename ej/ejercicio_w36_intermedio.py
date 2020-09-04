@@ -25,7 +25,7 @@ v0.1 020920 estructura del programa
 v0.2 020920 el programa cumple con las especificaciones
 v0.3 030920 saber cuando sale el sol y cuando se pone, no hay control de errores
 PENDIENTE CONTROL DE ERRORES
-
+v0.4 040920 version final, mas frases y cometnarios
 
 LIBRERIAS 
 pip install requests
@@ -41,9 +41,12 @@ saludo = [ "Buenos días", "Buenas tardes", "Buenas noches"]
 #               [tarde], 
 #               [noche]
 #           ]
-frases = [  ["Que pases un buen día", "Que te sea leve", "Divierte"],                                           # frases mañana
-            ["Que duermas bien la siesta", "Sal a pasear", "No estes mucho rato en el bar"],                    # frases tarde
-            ["Pronto a dormir", "No te quedes mucho rato viendo la TV", "Que sueñes con los angelitos"]         # frases noche
+frases = [  ["Que pases un buen día", "Que te sea leve", "Divierte", "Hoy estas radiante", 
+                "Otro día para ser felices", "Nada como un café para comenzar el día"],                 # frases mañana
+            ["Que duermas bien la siesta", "Sal a pasear", "No estes mucho rato en el bar", 
+                "Disfruta de las cosas simples", "Disfruta de la puesta de sol"],                       # frases tarde
+            ["Pronto a dormir", "No te quedes mucho rato viendo la TV", "Que sueñes con los angelitos", 
+                "Que la luz te acompañe", "Que duermas bien", "Que las estrellas te acompañen"]         # frases noche
         ]
 
 # Se usa del servicio ipgeolocation para saber cuando sale el sol (sunrise) y cuando se pone (sunset)
@@ -62,13 +65,16 @@ seg_s = hora.second + hora.minute*60 + hora.hour*60*60
 
 # lanzamos todo en un try por si no hay conexión a internet y no nos puede geolocalizar
 try:
+    # Miro mi IP de la WAN
     ip_r = requests.get('https://ifconfig.me/ip/')
     IP = ip_r.text  
     LANG = 'sp'
+    # y con la IP la geoposiciono y con ello saco la salida y puesta del sol
     URL = 'https://api.ipgeolocation.io/astronomy?apiKey=' + API_KEY + '&ip=' + IP + '&lang=' + LANG
     r = requests.get(URL)
     data = r.json()
 
+    # convierto los valores a time para poder hacer las comparaciones
     h_m, m_m = data["sunrise"].split(":")                           # saco la hora y minutos de la salida de sol
     h_n, m_n = data["sunset"].split(":")                            # saco la hora y minutos de la puesta de sol
     manana = time (hour=int(h_m), minute=int(m_m), second=0)        # a partir de esta hora es mañana
@@ -89,7 +95,8 @@ try:
 
     print ('Hora sistema:  {}'. format (hora))
     print ('Hora internet: {}'. format (hora_inet))
-    # Control de errores hora del sistema no coincide con la de internet
+    # Control de errores: hora del sistema no coincide con la de internet
+    # si hay una diferencia de más de 1000 seg. avisamos al usuario
     if (abs(seg_s - seg_i) > 1000):
         print ('Es posible que tengas mal la hora del sistema')
 
@@ -104,6 +111,7 @@ elif (hora >= tarde) and (hora < noche):
 else:
     estado = 2                                  #   Es por la noche
 
+# Bucle para coger el nombre y asegurarnos que no se ha equivocado
 nok = True
 while nok:
     nombre = input ("¿Cual es tu nombre? ")
@@ -112,7 +120,8 @@ while nok:
         valor = input ('¿esta seguro? S/N: ')
     if valor == "S" or valor == 's':
         nok = False
-    
+
+# Imprimir el resultado de lo que nos pide el programa
 print ('----------------------------------------')
 print ("{} {}".format (saludo [estado], nombre))
 print (frases[estado] [random.randint(0,len(frases[estado])-1)])
