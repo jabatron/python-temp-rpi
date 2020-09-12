@@ -7,9 +7,14 @@ from influxdb import InfluxDBClient
 def insertar_temperatura():
 	client = InfluxDBClient(host='localhost', port=8086)
 	client.switch_database('temperaturas')
-
-	sensor = W1ThermSensor()
-	temperature = sensor.get_temperature()
+	nok = True
+	while nok:
+		try:	
+			sensor = W1ThermSensor()
+			temperature = sensor.get_temperature()
+			nok = False
+		except:
+			nok = True
 	fecha = time.asctime()
 	print("The temperature at: {} is {} celsius".format(fecha, temperature))
 
@@ -18,7 +23,7 @@ def insertar_temperatura():
 			"measurement": "tempEvents",
 			"tags": {
 				"user": "ja",
-				"sensorID": "28-" + sensor.id
+				"sensorID": "28-" + sensor.id,
 				"site": "home-sitting room"
 			},
 			"time": fecha,
