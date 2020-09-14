@@ -50,5 +50,10 @@ def index(name):
 
     return template(pagina, name=name)
 
+print ('Escribe en el navegador ')
+print ('')
+print ('http://localhost:8080/tablas/<num>')
+print ('<num> -> numero de tablas a imprimir')
+print ('')
 
 run(host='localhost', port=8080)
