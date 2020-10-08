@@ -134,7 +134,7 @@ def imprimir (data):
         # Esto es por definición de las redes de clase D y E
 
 def main_chequear_IP ():
-    """ a
+    """ 
 
     """
 
@@ -150,9 +150,12 @@ def main_chequear_IP ():
 if __name__ == "__main__":
     arguments_count=len(sys.argv)
     
+    print ("________________________________________________________________________________")
     print ('Ejercicio b7. Para una dirección IP mostrar clase y número de hosts que admite.')
+    print ('@jabaselga')
     print ('Notación clásica: 192.168.4.2')
     print ('Notción CIDR: 192.168.4.2/23 o 192.168.5.2/255.255.240.0')
+    print ("________________________________________________________________________________")
 
     if arguments_count > 2:
         print ('Para ejecutar el comando:')
