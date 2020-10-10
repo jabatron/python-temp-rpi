@@ -169,6 +169,7 @@ if __name__ == "__main__":
     print ("________________________________________________________________________________")
     print ('Ejercicio b7. Para una dirección IP mostrar clase y número de hosts que admite.')
     print ('@jabaselga')
+    print (f'Para ejecutar el comando: {sys.argv[0]} [IP|IP/mask|IP/prefix]')
     print ('Ejemplo de notación clásica: 192.168.4.2')
     print ('Ejemplo de notación CIDR: 192.168.4.2/23 o 192.168.5.2/255.255.240.0')
     print ("________________________________________________________________________________")
@@ -184,6 +185,5 @@ if __name__ == "__main__":
         else:
             print (f'El argumento "{sys.argv[1]}" introducido no es una dirección IP válida')
     else:
-        while True:
-            main_chequear_IP()
+        main_chequear_IP()
         
