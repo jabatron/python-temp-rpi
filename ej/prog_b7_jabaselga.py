@@ -104,8 +104,8 @@ def es_ip (ip_s):
         elif a < 240:
             clase = 'D'
             full_ip = None
-        elif a < 248:
-            clase = 'S'
+        else:
+            clase = 'E'
             full_ip = None
         
         try:
@@ -184,5 +184,6 @@ if __name__ == "__main__":
         else:
             print (f'El argumento "{sys.argv[1]}" introducido no es una dirección IP válida')
     else:
-        main_chequear_IP()
+        while True:
+            main_chequear_IP()
         
