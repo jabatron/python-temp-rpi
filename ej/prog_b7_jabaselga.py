@@ -14,9 +14,6 @@ Ejemplo de la salida del programa:
 
 code:prog_b7_tuuser.py
 
-
-v0.1 20201005 estructura básica del programa
-
 Datos para elegir el tipo de IP
 
 Class        Networks                     mask          CDIR       leading bits
@@ -41,9 +38,23 @@ import sys
 # Interactua con el usuario para pedir la IP
 def pedir_ip ():
     ip_s = input  ("Introduce una IP en notación clásica o CIDR: ")
-
     return ip_s
 
+def comprobar_tipos (ipt):
+    if ipt.is_multicast:
+        print (f'La ip {ipt} es multicast.')
+    if ipt.is_private:
+        print (f'La ip {ipt} es private.')
+    if ipt.is_global:
+        print (f'La ip {ipt} es global.')
+    if ipt.is_unspecified:
+        print (f'La ip {ipt} es sin especificar.')
+    if ipt.is_reserved:
+        print (f'La ip {ipt} es reservada.')
+    if ipt.is_loopback:
+        print (f'La ip {ipt} es loopback.')
+    if ipt.is_link_local:
+        print (f'La ip {ipt} es link local.')    
 
 def es_ip (ip_s):
     """  
@@ -70,6 +81,7 @@ def es_ip (ip_s):
             network = ipaddress.IPv4Network(ip_s, strict=False)
             # si pasa es una IP con notación CIDR
             ip, _ = ip_s.split('/')
+            ip = ipaddress.IPv4Address(ip)
             dir_ok = True
             tipo = 2    # Es notación CIDR, ya hemos guardo IP y network
         except:
@@ -92,8 +104,8 @@ def es_ip (ip_s):
         elif a < 240:
             clase = 'D'
             full_ip = None
-        elif a < 248:
-            clase = 'S'
+        else:
+            clase = 'E'
             full_ip = None
         
         try:
@@ -107,12 +119,13 @@ def es_ip (ip_s):
     return (ip, network, clase, tipo)
 
 def imprimir (data):
-    # data[1] -> network, sacamos el prefijo de la red, para luego calcular los hosts
-    prefijo = data[1].prefixlen
+    
     print (f"Dirección ip: {data[0]}")
     if data[2]:
         print (f'Es una red de clase {data[2]}.')
     else:
+        # data[1] -> network, sacamos el prefijo de la red, para luego calcular los hosts
+        prefijo = data[1].prefixlen
         print ('Has introducido la dirección IP en formato CIDR.')
         # Aunque se ha usado notación CIDR, usamos el prefijo para saber que clase de red sería
         if prefijo == 24:
@@ -127,11 +140,14 @@ def imprimir (data):
         # para calcular los host (2^(32-prefijo))-2
         # 32-prefijo -> número de 0 que hay en la máscara
         # -2, 1 por la IP de net y 1 por la IP de broadcast
+        prefijo = data[1].prefixlen
         hosts = (2**(32-prefijo))-2 # 1 por broadcast y otro por dirección de red
         print (f'En esta red puede haber {hosts} hosts')
     else:
         print ('Es una red reservada, por tanto el numero de hosts es "not defined"')
         # Esto es por definición de las redes de clase D y E
+    
+    comprobar_tipos(data[0])
 
 def main_chequear_IP ():
     """ 
@@ -153,8 +169,9 @@ if __name__ == "__main__":
     print ("________________________________________________________________________________")
     print ('Ejercicio b7. Para una dirección IP mostrar clase y número de hosts que admite.')
     print ('@jabaselga')
-    print ('Notación clásica: 192.168.4.2')
-    print ('Notción CIDR: 192.168.4.2/23 o 192.168.5.2/255.255.240.0')
+    print (f'Para ejecutar el comando: {sys.argv[0]} [IP|IP/mask|IP/prefix]')
+    print ('Ejemplo de notación clásica: 192.168.4.2')
+    print ('Ejemplo de notación CIDR: 192.168.4.2/23 o 192.168.5.2/255.255.240.0')
     print ("________________________________________________________________________________")
 
     if arguments_count > 2:
