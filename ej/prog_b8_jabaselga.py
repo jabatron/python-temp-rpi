@@ -14,7 +14,7 @@ Tu Pokémon no ha sido encontrado o no existe
 
 Webs donde pueden sacar informacion:
 Link 1 (https://www.pokemon.com/es/pokedex/) 
-Link 2 (https://pokemon.fandom.com/es/wiki/Lista_de_Pok%C3%A9mon) 
+Link 2 (https://pokemon.fandom.com/es/wiki/Lista_de_Pokémon) 
 
 Nota: No es obligatorio solo limitarse a esas webs, pueden buscar otras, pero estas las pueden usar.
 
@@ -68,7 +68,7 @@ def chequear_fandom (pokemon):
         # Buscamos todas las tablas de esa clase que son los que contienen los pokemon y tipos            
         for t in tablas:
             if t.find_all('a', dicc):   # busca el pokemon en la tabla
-                tabla_pk=t              # nos quedamos con la fila donde aparece
+                tabla_pk=t              # nos quedamos con la fila donde aparece el pokemon
         
         if not tabla_pk:                # si no esta en ninguna tabla el pokemon no existe
             return False, None
