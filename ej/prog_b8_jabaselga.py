@@ -33,6 +33,7 @@ def pedir_nombre ():
     nombre=input('Introduce el nombre de pokemon a verificar:')
     return nombre
 
+
 def chequear_pokemon (pokemon):
     pokemon_com = 'https://www.pokemon.com/es/pokedex/' + pokemon
     tipo = []
@@ -44,8 +45,38 @@ def chequear_pokemon (pokemon):
         for link in soup.find_all('a'):
             if 'type' in link.get('href'):
                 tipo.append(link.text)
-        #tipo=set(tipo)
+        tipo=set(tipo)
     return True, tipo
+
+def chequear_fandom (pokemon):
+    pokemonpage=get('https://pokemon.fandom.com/es/wiki/Lista_de_Pok%C3%A9mon')
+    if pokemonpage.status_code == 200:
+        tabla_pk = []
+        pika = []
+        pokemon=pokemon.title()
+        dicc = {"title": pokemon}
+        soup=BeautifulSoup(pokemonpage.text, 'lxml')
+        tablas=soup.find_all('table', { "class" : "tabpokemon sortable mergetable"})
+                    
+        for t in tablas:
+            if t.find_all('a', dicc):
+                tabla_pk=t
+        
+        if not tabla_pk:
+            return False, None
+        
+        tabla_pk.find_all('a', dicc)
+        filas=tabla_pk.find_all('tr')
+        for f in filas:
+            if f.find_all('a', dicc):
+                pika = f
+        last=pika.find_all('a')
+        la=[]
+        for a in last:
+            #print (a.attrs)
+            if 'Tipo' in a.attrs['title']:
+                la.append(a.attrs['title'])
+        return True, la
 
 # programa PRINCIPAL
 if __name__ == "__main__":
@@ -66,6 +97,13 @@ if __name__ == "__main__":
         pokemon=pedir_nombre()
 
     es_pokemon, tipo = chequear_pokemon(pokemon)
+
+    if es_pokemon:
+        print (tipo)
+    else:
+        print ('Eso no es un pokemon')
+
+    es_pokemon, tipo = chequear_fandom(pokemon)
 
     if es_pokemon:
         print (tipo)
