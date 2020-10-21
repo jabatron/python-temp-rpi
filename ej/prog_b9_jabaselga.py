@@ -91,26 +91,6 @@ def eval_port(ports_s):
                     lp.append(int(j))
     return lp
 
-def scan_port(ip, port):
-    """ Esta funcion escanea 1 puerto. Devuelve True si esta abierto, False si no lo esta
-    """
-
-    try: 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        socket.setdefaulttimeout(0.5) 
-
-        # returns an error indicator 
-        result = s.connect_ex((ip,port)) 
-        if result ==0: 
-            return True
-        s.close() 
-    
-    except: 
-            print(f"El intento de escaner el puerto {port} en la ip {ip} ha dado un error") 
-    
-    return False
-
-
 if __name__ == "__main__":
 
     arguments_count=len(sys.argv)
@@ -118,57 +98,58 @@ if __name__ == "__main__":
     print ("________________________________________________________________________________")
     print ('Ejercicio b9. Escaner de puertos.')
     print ('@jabaselga')
-    print ('usage: prog_b9_jabaselga.py [-h] [-p [PORTS] | -f | -q] [-i A.B.C.D]')
     print ("________________________________________________________________________________")
 
-    parser = argparse.ArgumentParser(description='Espectacular escaner de puertos', epilog='@jabaselga')
+    parser = argparse.ArgumentParser(description='Port scanner', epilog='@jabaselga')
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-p", "--ports", nargs='?', help="Ports to scan",type=check_ports)
     group.add_argument("-f", "--full", help="Scan all port range (0-65535)", action='store_true')
     group.add_argument("-q", "--quit", help="Scan more interesting ports (22, 80, 443, ...)", action='store_true')
     parser.add_argument("-i", "--ip", metavar='A.B.C.D', help="IP to port scan", type=check_ip)
-    parser.add_argument("-v", "--verbose", help="Extra information")
+    parser.add_argument("-v", "--verbose", help="Extra information", action='store_true')
     args = parser.parse_args()
 
     if args.verbose:
-        print (f'Puertos: {args.ports}')
-        print (f'Escano total: {args.full}')
-        print (f'Escaneo rápido: {args.quit}')
-        print (f'Sobre esta ip: {args.ip}')
-
+        print (f'Ports: {args.ports}')
+        print (f'Full scan: {args.full}')
+        print (f'Quick scan: {args.quit}')
+        print (f'IP: {args.ip}')
 
     ip=''
     if not args.ip:
         nok=True
         while nok:
-            ip=input('Introduce la IP a escanear: ')
+            ip=input('Input IP to scan: ')
             try:
                 ipaddress.IPv4Address(ip)
                 nok = False
             except:
-                print ('Has escrito una IP no válida. Intenta de nuevo.')
+                print ('IP wrong. Try again.')
     else:
         ip=args.ip
     
     ports=[]
     
     if args.quit:
-        ports = [22, 23, 80, 443]
+        ports = [20, 21, 22, 23, 25, 37, 42, 49, 53, 80, 110, 123, 137, 138, 139, 143, 443, 587, 993, 995, 1080, 1194, 1433, 2082, 2083, 2086, 2087, 2095, 2096, 2077, 2078, 3306, 5800, 5900, 8080]
     elif args.full:
-        ports=list(range(65535))
+        if args.verbose:
+            print ('Warning: it takes several mimutes ...')
+            ports=list(range(65535))
     else:
         if not args.ports:
             nok=True
             while not ports:
-                ports=input('Introduce los puertos a escanear: ')
-                ports = check_ports_manual(ports)
-                if not ports:
-                    print ('No has escrito correctamente los puertos [x,x-y,...].  Intenta de nuevo.')
+                ports=input('Input ports to scan: ')
+                if ports !='':
+                    ports = check_ports_manual(ports)
+                    if not ports:
+                        print ('Ports wrong. Format -> [x,x-y,...].  Try again.')
         else:
             ports = sorted(list(set(eval_port(args.ports))))
         
     if args.verbose:
-        print (ports)
+        print (f'Port to scan: {ports}')
 
     print("-" * 50) 
     print("Scanning Target: " + ip) 
@@ -197,3 +178,4 @@ if __name__ == "__main__":
             print("\n Server not responding !!!!") 
             sys.exit() 
 
+    print(f"Scanning of {len(ports)} ports finished at:" + str(datetime.now()))
