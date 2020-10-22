@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """ 
 Detalles:
 
@@ -101,6 +103,7 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-p", "--ports", nargs='?', help="Ports to scan",type=check_ports)
     group.add_argument("-f", "--full", help="Scan all port range (0-65535)", action='store_true')
+    group.add_argument("-l", "--large", help="Scan big port range (0-10000)", action='store_true')
     group.add_argument("-q", "--quit", help="Scan more interesting ports (22, 80, 443, ...)", action='store_true')
     parser.add_argument("-i", "--ip", metavar='A.B.C.D', help="IP to port scan", type=check_ip)
     parser.add_argument("-v", "--verbose", help="Show extra information", action='store_true')
@@ -111,6 +114,7 @@ if __name__ == "__main__":
     if args.verbose:
         print (f'Ports: {args.ports}')
         print (f'Full scan: {args.full}')
+        print (f'Large scan: {args.large}')
         print (f'Quick scan: {args.quit}')
         print (f'IP: {args.ip}')
 
@@ -134,7 +138,11 @@ if __name__ == "__main__":
     elif args.full:
         if args.verbose:
             print ('Warning: it takes several mimutes ...')
-            ports=list(range(65535))
+        ports=list(range(65535))
+    elif args.large:
+        if args.verbose:
+            print ('Warning: it takes several mimutes ...')
+        ports=list(range(10000))
     else:
         if not args.ports:
             nok=True
