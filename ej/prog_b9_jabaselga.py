@@ -77,6 +77,7 @@ def check_ports_manual(string):
 
 
 def eval_port(ports_s):
+    
     ports=list(ports_s.split(','))
 
     lp=[]
@@ -101,7 +102,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Port scanner', epilog='@jabaselga')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-p", "--ports", nargs='?', help="Ports to scan",type=check_ports)
+    group.add_argument("-p", "--ports", nargs='?', help="Ports to scan", type=check_ports)
     group.add_argument("-f", "--full", help="Scan all port range (0-65535)", action='store_true')
     group.add_argument("-l", "--large", help="Scan big port range (0-10000)", action='store_true')
     group.add_argument("-q", "--quit", help="Scan more interesting ports (22, 80, 443, ...)", action='store_true')
