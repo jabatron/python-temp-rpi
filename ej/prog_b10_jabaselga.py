@@ -108,7 +108,7 @@ def comprobar_estado(usuario, sl):
     if sl:
         nombre, tipo=paser_selenium(url_user)
     else:
-        nombre, tipo='No tienes selenium instaldo, imposible sacar el tipo cuenta...'
+        nombre, tipo='¿nombre?','No tienes selenium instaldo, imposible sacar el tipo cuenta...'
 
 
     return usuario, nombre, seguidores, seguidos, publicaciones, tipo
