@@ -55,7 +55,7 @@ def paser_selenium (page):
     try:
         browser=Chrome(options=chrome_options)
     except:
-        return 'Me fatltan componetes de chrome para sacar el tipo de cuenta.'
+        return 'NOMBRE', 'Me fatltan componetes de chrome para sacar el tipo de cuenta.'
     
     browser.get(page)
     browser.find_element_by_xpath('/html/body/div[2]/div/div/div/div[2]/button[1]').click()
@@ -66,7 +66,15 @@ def paser_selenium (page):
     except:
         tipo='La cuenta es pública'
     
-    return tipo
+    page=browser.page_source
+    html_g=Soup(page)
+    try:
+        nombre=html_g.find('h1', attrs={'class':'rhpdm'})
+        nombre=nombre.text
+    except:
+        nombre='usuario sin nombre'
+
+    return nombre, tipo
 
 def comprobar_estado(usuario, sl):
     url_user=url+usuario+'/?hl=es'
@@ -79,6 +87,14 @@ def comprobar_estado(usuario, sl):
     a=html_s.find('meta', attrs={'property':'og:description'})
     dic=a.attrs
     n=dic['content'].replace('-',',')
+    # arreglar el problema de las ',' en los números
+    new_n=n[0]
+    for i in range(1,len(n)):
+        if n[i-1].isdigit() and n[i]==',' and n[i+1].isdigit():
+            new_n += '.'
+        else:
+            new_n += n[i]
+    n=new_n
     n=n.split(',')
     data=(x.strip() for x in n)
     # ('431 Followers', '872 Following', '294 Posts', 'See Instagram photos and videos from JP (@juanpedro)')
@@ -86,18 +102,20 @@ def comprobar_estado(usuario, sl):
     seguidores, seguidos, publicaciones, usuario = data
     *_, usuario = usuario.split(' ')
     # '@juanpedro'
-    usuario = usuario[1:-1]
+    if '(' in usuario:
+        usuario = usuario[1:-1]
 
     if sl:
-        tipo=paser_selenium(url_user)
+        nombre, tipo=paser_selenium(url_user)
     else:
-        tipo='No tienes selenium instaldo, imposible sacar el tipo cuenta...'
+        nombre, tipo='No tienes selenium instaldo, imposible sacar el tipo cuenta...'
 
 
-    return usuario, seguidores, seguidos, publicaciones, tipo
+    return usuario, nombre, seguidores, seguidos, publicaciones, tipo
 
-def imprimir_datos(usuario, seguidores, seguidos, publicaciones, tipo):
+def imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo):
     print (f'{usuario}'.center(40,"*"))
+    print (nombre)
     print (seguidores)
     print (seguidos)
     print (publicaciones)
@@ -107,8 +125,8 @@ if __name__ == "__main__":
     
     user=pedir_usuario()
     try:
-        usuario, seguidores, seguidos, publicaciones, tipo = comprobar_estado(user, sl)
-        imprimir_datos(usuario, seguidores, seguidos, publicaciones, tipo)
+        usuario, nombre, seguidores, seguidos, publicaciones, tipo = comprobar_estado(user, sl)
+        imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo)
     except TypeError:
         print ("El usuario no existe..")
     
