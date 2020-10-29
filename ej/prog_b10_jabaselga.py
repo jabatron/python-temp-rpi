@@ -54,8 +54,7 @@ def pedir_usuario():
         usuario=pattern.fullmatch(usuario.strip())
         if usuario:
             nok=False
-
-    print (f'usuario->{usuario}')
+ 
     return usuario.string
 
 def paser_selenium (page):
@@ -133,7 +132,6 @@ def imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo):
 if __name__ == "__main__":
     
     user=pedir_usuario()
-    print (f'user -> {user}')
     try:
         usuario, nombre, seguidores, seguidos, publicaciones, tipo = comprobar_estado(user, sl)
         imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo)

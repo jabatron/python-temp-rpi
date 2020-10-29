@@ -1,2 +1,8 @@
 ej/__pycache__/*.pyc
 *.ipynb
+.vscode/launch.json
+.vscode/settings.json
+token.pickle
+ej/Python POO 1.ipynb
+gmail/client_secret.json
+.vscode/settings.json
