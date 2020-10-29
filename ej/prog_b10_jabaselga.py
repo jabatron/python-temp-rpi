@@ -32,6 +32,7 @@ chrome & chromedriver to use selenium
 """
 
 from gazpacho import get, Soup
+import re
 
 # para usar selenium
 try:
@@ -46,8 +47,16 @@ except:
 url='https://www.instagram.com/'
 
 def pedir_usuario():
-    usuario=input('Introduzca un usuario para comprobar: ')
-    return usuario
+    nok = True
+    while nok:
+        usuario=input('Introduzca un usuario para comprobar: ')
+        pattern=re.compile(r'^([0-9a-zA-Z\._]){1,30}$')
+        usuario=pattern.fullmatch(usuario.strip())
+        if usuario:
+            nok=False
+
+    print (f'usuario->{usuario}')
+    return usuario.string
 
 def paser_selenium (page):
     chrome_options=Options()
@@ -64,7 +73,7 @@ def paser_selenium (page):
         tipo=browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/div/article/div/div/h2')
         tipo=tipo.text
     except:
-        tipo='La cuenta es pública'
+        tipo='Esta cuenta es pública'
     
     page=browser.page_source
     html_g=Soup(page)
@@ -124,6 +133,7 @@ def imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo):
 if __name__ == "__main__":
     
     user=pedir_usuario()
+    print (f'user -> {user}')
     try:
         usuario, nombre, seguidores, seguidos, publicaciones, tipo = comprobar_estado(user, sl)
         imprimir_datos(usuario, nombre, seguidores, seguidos, publicaciones, tipo)
